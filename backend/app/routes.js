@@ -1,7 +1,6 @@
 const Router = require("koa-router");
 const koaBody = require("koa-body");
 
-const router = require("./routes");
 const requestIdMiddleware = require("./middleware/requestId");
 const logMiddleware = require("./middleware/log");
 const responseHandlerMiddleware = require("./middleware/responseHandler");
@@ -17,7 +16,7 @@ module.exports = (appContext, app, server) => {
   app.use(router.routes());
   app.use(router.allowedMethods());
 
-  router.get('/foo', async ctx => {
+  router.get("/foo", async ctx => {
     log.debug("WANKEL!");
     ctx.body = "Hello world from foo";
   });

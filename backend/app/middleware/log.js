@@ -10,7 +10,7 @@ module.exports = (appContext) => async (ctx, next) => {
     });
 
     ctx.log.info(
-      { req: ctx, event: 'request' },
+      { req: ctx, event: "request" },
       `Request start for id: ${ctx.reqId}`
     );
 
@@ -18,7 +18,7 @@ module.exports = (appContext) => async (ctx, next) => {
       await next();
     } catch (err) {
       ctx.log.error(
-        { err, event: 'error' },
+        { err, event: "error" },
         `Unhandled exception occured on the request: ${ctx.reqId}`
       );
       throw err;
@@ -26,7 +26,7 @@ module.exports = (appContext) => async (ctx, next) => {
 
     ctx.responseTime = new Date() - startTime;
     ctx.log.info(
-      { req: ctx, res: ctx, event: 'response' },
+      { req: ctx, res: ctx, event: "response" },
       `Request successfully completed for id: ${ctx.reqId}`
     );
   };

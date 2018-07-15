@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * HTTP Status codes
@@ -29,21 +29,21 @@ function responseHandler() {
 
     ctx.res.success = (data = null, message = null) => {
       ctx.status = ctx.status < 400 ? ctx.status : statusCodes.OK;
-      ctx.body = { status: 'success', data, message };
+      ctx.body = { status: "success", data, message };
     };
 
     ctx.res.fail = (code = null, message = null, data = null) => {
       ctx.status = ctx.status >= 400 && ctx.status < 500
         ? ctx.status
         : statusCodes.BAD_REQUEST;
-      ctx.body = { status: 'fail', code, data, message };
+      ctx.body = { status: "fail", code, data, message };
     };
 
     ctx.res.error = (code = null, message = null, data = null) => {
       ctx.status = ctx.status < 500
         ? statusCodes.INTERNAL_SERVER_ERROR
         : ctx.status;
-      ctx.body = { status: 'error', code, data, message };
+      ctx.body = { status: "error", code, data, message };
     };
 
     ctx.res.ok = (data, message) => {

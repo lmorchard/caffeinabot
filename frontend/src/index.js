@@ -1,11 +1,9 @@
 import React from "react";
 import { render } from "react-dom";
-import { Provider } from "react-redux";
+// import { Provider } from "react-redux";
 
 import App from "./lib/components/App";
 import "./index.scss";
-
-console.log("HELLO WORLD");
 
 const root = document.createElement("div");
 root.id = "root";

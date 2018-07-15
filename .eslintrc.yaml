@@ -1,0 +1,60 @@
+extends:
+- eslint:recommended
+- plugin:import/recommended
+- plugin:mozilla/recommended
+- plugin:react/recommended
+
+env:
+  browser: true
+  es6: true
+  jquery: true
+
+parser: babel-eslint
+
+parserOptions:
+  ecmaVersion: 6
+
+root: true
+
+rules:
+  no-console: "warn"
+  arrow-parens: off
+  comma-dangle: off
+  function-paren-newline: off
+  guard-for-in: off
+  import/no-named-as-default: off
+  import/prefer-default-export: off
+  linebreak-style: off
+  no-multi-assign: off
+  no-plusplus: off
+  no-restricted-syntax: off
+  no-use-before-define: off
+  object-curly-newline: off
+  react/prop-types: off
+
+overrides:
+  -
+    files: ['frontend/src/**/*.js']
+    globals:
+      process: true
+      require: true
+  -
+    files: ['backend/**/*.js']
+    env:
+      node: true
+  -
+    files: ['webpack.*.js','bin/*.js']
+    rules:
+      import/unambiguous: off
+    env:
+      node: true
+  -
+    files:
+      - 'lib/test-setup.js'
+      - 'frontend/src/**/*-test.js'
+      - 'backend/**/*-test.js'
+    rules:
+      import/unambiguous: off
+    env:
+      node: true
+      mocha: true

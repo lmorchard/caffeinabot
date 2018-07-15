@@ -6,8 +6,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const nodeEnv = process.env.NODE_ENV || "production";
 const devMode = nodeEnv === "development";
-const siteHost = process.env.HOST || "127.0.0.1";
-const sitePort = process.env.PORT || "8080";
 
 module.exports = {
   mode: devMode ? "development" : "production",

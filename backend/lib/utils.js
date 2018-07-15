@@ -22,12 +22,12 @@ class PrettyBunyan extends Writable {
     };
 
     this.colorFromName = {
-      trace: 'gray',
-      debug: 'magenta',
-      info: 'green',
-      warn: 'yellow',
-      error: 'red',
-      fatal: 'bgRed'
+      trace: "gray",
+      debug: "magenta",
+      info: "green",
+      warn: "yellow",
+      error: "red",
+      fatal: "bgRed"
     };
 
     this.nameFromLevel = {};
@@ -43,7 +43,7 @@ class PrettyBunyan extends Writable {
     const levelColor = this.colorFromName[levelName];
     const level = chalk[levelColor](`[${levelName}]`);
 
-    const event = data.event ? chalk.white(`(${data.event}) `) : '';
+    const event = data.event ? chalk.white(`(${data.event}) `) : "";
 
     process.stdout.write(`${time} ${level} ${event}${data.msg}\n`);
   }
