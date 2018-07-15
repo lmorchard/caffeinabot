@@ -1,6 +1,9 @@
 const webpack = require("webpack");
 const path = require("path");
 
+const convert = require('koa-connect');
+const history = require('connect-history-api-fallback');
+
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -15,6 +18,13 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "frontend/build"),
     filename: "[name].bundle.js"
+  },
+  serve: {
+    content: [ path.join(__dirname, "frontend/build") ],
+    clipboard: false,
+    add: (app, middleware, options) => {
+      app.use(convert(history()));
+    }
   },
   optimization: {
     splitChunks: {
@@ -63,3 +73,4 @@ module.exports = {
     ]
   }
 };
+

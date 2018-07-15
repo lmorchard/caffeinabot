@@ -1,5 +1,4 @@
 const koaBody = require("koa-body");
-const historyApiFallback = require("koa-history-api-fallback");
 const requestIdMiddleware = require("./middleware/requestId");
 const logMiddleware = require("./middleware/log");
 const responseHandlerMiddleware = require("./middleware/responseHandler");
@@ -14,9 +13,6 @@ module.exports = (app, server) => {
   const appContext = setupContext();
   const { log, config } = appContext;
 
-  app.use(historyApiFallback({
-    verbose: true
-  }));
   app.use(koaBody());
   app.use(requestIdMiddleware());
   app.use(logMiddleware(appContext));
