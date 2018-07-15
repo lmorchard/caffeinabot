@@ -3,7 +3,6 @@ import { applyMiddleware, createStore, combineReducers } from "redux";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-import { BrowserRouter } from "react-router-dom";
 import { createBrowserHistory } from "history";
 import {
   connectRouter,
@@ -11,7 +10,7 @@ import {
   ConnectedRouter
 } from "connected-react-router";
 import { reducers, actions } from "./lib/store";
-import App from "./lib/components/App";
+import App from "./components/App";
 
 import "./index.scss";
 
@@ -65,7 +64,6 @@ function setupWebSocket() {
   });
 
   socket.addEventListener("message", event => {
-    console.log("SOCKET MESSAGE", event.data);
     try {
       const data = JSON.parse(event.data);
       if (data.event === "STORE_ACTION") {

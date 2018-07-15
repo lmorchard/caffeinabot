@@ -1,5 +1,5 @@
 import { createActions, handleActions, combineActions } from "redux-actions";
-import undoable, { ActionCreators, ActionTypes } from "redux-undo";
+// import undoable, { ActionCreators, ActionTypes } from "redux-undo";
 
 export const actions = createActions(
   {

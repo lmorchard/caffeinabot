@@ -1,14 +1,18 @@
 const webpack = require("webpack");
 const path = require("path");
 
-const convert = require('koa-connect');
-const history = require('connect-history-api-fallback');
+const convert = require("koa-connect");
+const history = require("connect-history-api-fallback");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+const setupApp = require("./backend/app");
+
 const nodeEnv = process.env.NODE_ENV || "production";
 const devMode = nodeEnv === "development";
+
+const contentPath = path.resolve(__dirname, "frontend/build");
 
 module.exports = {
   mode: devMode ? "development" : "production",
@@ -16,13 +20,16 @@ module.exports = {
     index: "./frontend/src/index.js"
   },
   output: {
-    path: path.resolve(__dirname, "frontend/build"),
+    path: contentPath,
     filename: "[name].bundle.js"
   },
   serve: {
-    content: [ path.join(__dirname, "frontend/build") ],
+    content: contentPath,
     clipboard: false,
     add: (app, middleware, options) => {
+      middleware.webpack();
+      setupApp(app, app.server);
+      middleware.content();
       app.use(convert(history()));
     }
   },
@@ -73,4 +80,3 @@ module.exports = {
     ]
   }
 };
-

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Route, Link, Switch } from "react-router-dom";
-import { actions, selectors } from "../../store";
+import { /* actions, */ selectors } from "../../lib/store";
 
 import Resizable from "re-resizable";
 
@@ -39,7 +39,7 @@ export const AppComponent = props => (
         height: 200
       }}
       onResizeStop={(e, direction, ref, d) => {
-        console.log("RESIZE STOP", { e, direction, ref, d });
+      console.log("RESIZE STOP", { e, direction, ref, d }); // eslint-disable-line
       }}
     >
       001
