@@ -1,15 +1,21 @@
 import React from "react";
-import { applyMiddleware } from "redux";
+import { applyMiddleware, createStore, combineReducers } from "redux";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-
-import { actions, createAppStore } from "./lib/store";
+import { BrowserRouter } from "react-router-dom";
+import { createBrowserHistory } from "history";
+import {
+  connectRouter,
+  routerMiddleware,
+  ConnectedRouter
+} from "connected-react-router";
+import { reducers, actions } from "./lib/store";
 import App from "./lib/components/App";
 
 import "./index.scss";
 
-let store, socket;
+let history, store, socket;
 
 function init() {
   setupStore();
@@ -25,9 +31,16 @@ function setupStore() {
     return returnValue;
   };
 
-  store = createAppStore(
-    {},
-    composeEnhancers(applyMiddleware(updateWebSocketMiddleware))
+  const initialState = {};
+
+  history = createBrowserHistory();
+
+  store = createStore(
+    connectRouter(history)(combineReducers({ ...reducers })),
+    initialState,
+    composeEnhancers(
+      applyMiddleware(routerMiddleware(history), updateWebSocketMiddleware)
+    )
   );
 }
 
@@ -36,12 +49,10 @@ function setupWebSocket() {
     setSocketConnecting,
     setSocketConnected,
     setSocketDisconnected
-  } = actions.ui;
+  } = actions;
 
   const { protocol, host } = window.location;
-  socket = new WebSocket(
-    `${protocol === "https" ? "wss" : "ws"}://${host}`
-  );
+  socket = new WebSocket(`${protocol === "https" ? "wss" : "ws"}://${host}`);
 
   store.dispatch(setSocketConnecting());
 
@@ -73,7 +84,9 @@ function renderApp() {
   document.body.appendChild(root);
   render(
     <Provider store={store}>
-      <App {...{}} />
+      <ConnectedRouter history={history}>
+        <App />
+      </ConnectedRouter>
     </Provider>,
     root
   );
