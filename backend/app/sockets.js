@@ -15,9 +15,14 @@ module.exports = (appContext, server) => {
 
   setInterval(() => {
     wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send("PING " + Date.now());
+      if (client.readyState !== WebSocket.OPEN) {
+        return;
       }
+      client.send(JSON.stringify({
+        event: "STORE_ACTION",
+        type: "SET_SYSTEM_TIME",
+        payload: Date.now()
+      }));
     });
   }, 1000);
 };
