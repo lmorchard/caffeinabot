@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Route, Link, Switch } from "react-router-dom";
+import { hot } from 'react-hot-loader';
 import { /* actions, */ selectors } from "../../lib/store";
 
 import Resizable from "re-resizable";
@@ -23,7 +24,7 @@ const mapStateToProps = state => {
 
 export const AppComponent = props => (
   <div className="app">
-    <h1>Hello world wang!</h1>
+    <h1>Hello world fart!</h1>
     <AuthStatus {...props} />
     <p>Socket is: {props.socketStatus}</p>
     <SystemTime {...props} />
@@ -94,4 +95,4 @@ const AuthStatus = ({ authLoading, authUser }) => (
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(AppComponent);
+)(hot(module)(AppComponent));

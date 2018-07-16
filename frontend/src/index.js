@@ -21,6 +21,11 @@ function init() {
   setupStore();
   setupWebSocket();
   setupAuth();
+
+  const root = document.createElement("div");
+  root.id = "root";
+  document.body.appendChild(root);
+
   renderApp();
 }
 
@@ -60,9 +65,7 @@ function setupWebSocket() {
   } = actions;
 
   const { protocol, host } = window.location;
-  socket = new ReconnectingWebSocket(
-    `${protocol === "https" ? "wss" : "ws"}://${host}`
-  );
+  socket = new ReconnectingWebSocket(`${protocol === "https" ? "wss" : "ws"}://${host}`);
 
   store.dispatch(setSocketConnecting());
 
@@ -88,16 +91,13 @@ function setupWebSocket() {
 }
 
 function renderApp() {
-  const root = document.createElement("div");
-  root.id = "root";
-  document.body.appendChild(root);
   render(
     <Provider store={store}>
       <ConnectedRouter history={history}>
         <App />
       </ConnectedRouter>
     </Provider>,
-    root
+    document.getElementById("root")
   );
 }
 
