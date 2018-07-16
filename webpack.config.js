@@ -1,14 +1,18 @@
 const webpack = require("webpack");
 const path = require("path");
+const config = require("config");
 
 const convert = require("koa-connect");
 const history = require("connect-history-api-fallback");
 
+const ConfigWebpackPlugin = require("config-webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const setupApp = require("./backend/app");
 
+const host = config.get("host") || "127.0.0.1";
+const port = config.get("port") || "80";
 const nodeEnv = process.env.NODE_ENV || "production";
 const devMode = nodeEnv === "development";
 
@@ -23,16 +27,29 @@ module.exports = {
     path: contentPath,
     filename: "[name].bundle.js"
   },
+  devtool: "cheap-eval-source-map",
   serve: {
+    host,
+    port,
+    hotClient: {
+      host,
+      port: Number.parseInt(port, 10) + 1
+    },
     content: contentPath,
     clipboard: false,
     add: (app, middleware, options) => {
-      middleware.webpack();
       setupApp(app, app.server);
-      middleware.content();
       app.use(convert(history()));
     }
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": `"${nodeEnv}"`
+    }),
+    new ConfigWebpackPlugin(),
+    new HtmlWebpackPlugin(),
+    new MiniCssExtractPlugin()
+  ],
   optimization: {
     splitChunks: {
       chunks: "all",
@@ -46,13 +63,6 @@ module.exports = {
       }
     }
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      "process.env.NODE_ENV": `"${nodeEnv}"`
-    }),
-    new HtmlWebpackPlugin(),
-    new MiniCssExtractPlugin()
-  ],
   module: {
     rules: [
       {
@@ -76,6 +86,25 @@ module.exports = {
       {
         test: /\.(sa|sc|c)ss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
+      },
+      {
+        test: /\.(jpe?g|gif|png|svg)$/i,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              hash: "sha512",
+              digest: "hex",
+              name: "[name]-[hash].[ext]"
+            }
+          },
+          {
+            loader: "image-webpack-loader",
+            options: {
+              bypassOnDebug: true
+            }
+          }
+        ]
       }
     ]
   }

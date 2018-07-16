@@ -1,8 +1,6 @@
 const WebSocket = require("ws");
 
-module.exports = (appContext, server) => {
-  const { log } = appContext;
-
+module.exports = ({ log, app, server }) => {
   const wss = new WebSocket.Server({ server });
   wss.on("connection", function connection(ws) {
     ws.on("message", function incoming(message) {

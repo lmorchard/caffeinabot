@@ -3,11 +3,14 @@ import { createActions, handleActions, combineActions } from "redux-actions";
 
 export const actions = createActions(
   {
-    SET_SOCKET_DISCONNECTED: () => ({ socketStatus: "disconnected" }),
-    SET_SOCKET_CONNECTING: () => ({ socketStatus: "connecting" }),
-    SET_SOCKET_CONNECTED: () => ({ socketStatus: "connected" })
+    SET_SOCKET_DISCONNECTED: () => "disconnected",
+    SET_SOCKET_CONNECTING: () => "connecting",
+    SET_SOCKET_CONNECTED: () => "connected",
+    SET_AUTH_LOADING: () => true,
+    SET_AUTH_LOADED: () => false
   },
-  "SET_SYSTEM_TIME"
+  "SET_SYSTEM_TIME",
+  "SET_AUTH_USER"
 );
 
 export const reducers = {
@@ -17,23 +20,39 @@ export const reducers = {
         actions.setSocketDisconnected,
         actions.setSocketConnecting,
         actions.setSocketConnected
-      )]: (state, { payload: { socketStatus } }) => ({
+      )]: (state, { payload: socketStatus }) => ({
         ...state,
         socketStatus
       }),
       [actions.setSystemTime]: (state, { payload: systemTime }) => ({
         ...state,
         systemTime
+      }),
+      [combineActions(actions.setAuthLoading, actions.setAuthLoaded)]: (
+        state,
+        { payload: authLoading }
+      ) => ({
+        ...state,
+        authLoading
+      }),
+      [actions.setAuthUser]: (state, { payload: authUser }) => ({
+        ...state,
+        authUser,
+        authLoading: false
       })
     },
     {
       socketStatus: "disconnected",
-      systemTime: 0
+      systemTime: 0,
+      authLoading: false,
+      authUser: null
     }
   )
 };
 
 export const selectors = {
   socketStatus: state => state.ui.socketStatus,
-  systemTime: state => state.ui.systemTime
+  systemTime: state => state.ui.systemTime,
+  authLoading: state => state.ui.authLoading,
+  authUser: state => state.ui.authUser
 };

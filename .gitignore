@@ -13,3 +13,5 @@ frontend/build/
 logs/
 data/
 node_modules/
+
+config/local.*

@@ -9,6 +9,7 @@ import {
   routerMiddleware,
   ConnectedRouter
 } from "connected-react-router";
+import ReconnectingWebSocket from "reconnecting-websocket";
 import { reducers, actions } from "./lib/store";
 import App from "./components/App";
 
@@ -19,6 +20,7 @@ let history, store, socket;
 function init() {
   setupStore();
   setupWebSocket();
+  setupAuth();
   renderApp();
 }
 
@@ -43,6 +45,13 @@ function setupStore() {
   );
 }
 
+function setupAuth() {
+  store.dispatch(actions.setAuthLoading());
+  fetch("/auth/user")
+    .then(response => response.json())
+    .then(user => store.dispatch(actions.setAuthUser(user)));
+}
+
 function setupWebSocket() {
   const {
     setSocketConnecting,
@@ -51,7 +60,9 @@ function setupWebSocket() {
   } = actions;
 
   const { protocol, host } = window.location;
-  socket = new WebSocket(`${protocol === "https" ? "wss" : "ws"}://${host}`);
+  socket = new ReconnectingWebSocket(
+    `${protocol === "https" ? "wss" : "ws"}://${host}`
+  );
 
   store.dispatch(setSocketConnecting());
 

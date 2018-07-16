@@ -9,6 +9,8 @@ import SystemTime from "../SystemTime";
 
 import "./index.scss";
 
+const mapDispatchToProps = dispatch => ({});
+
 const mapStateToProps = state => {
   const mappedSelectors = Object.entries(selectors).reduce(
     (acc, [name, selector]) => ({ ...acc, [name]: selector(state) }),
@@ -19,11 +21,10 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({});
-
 export const AppComponent = props => (
   <div className="app">
-    <h1>Hello world!</h1>
+    <h1>Hello world wang!</h1>
+    <AuthStatus {...props} />
     <p>Socket is: {props.socketStatus}</p>
     <SystemTime {...props} />
     <Resizable
@@ -39,7 +40,7 @@ export const AppComponent = props => (
         height: 200
       }}
       onResizeStop={(e, direction, ref, d) => {
-      console.log("RESIZE STOP", { e, direction, ref, d }); // eslint-disable-line
+        console.log("RESIZE STOP", { e, direction, ref, d }); // eslint-disable-line
       }}
     >
       001
@@ -63,6 +64,30 @@ export const AppComponent = props => (
       <Route path="/about" component={() => <p>About!</p>} />
       <Route path="/topics" component={() => <p>Topics!</p>} />
     </Switch>
+  </div>
+);
+
+const AuthStatus = ({ authLoading, authUser }) => (
+  <div className="auth-status">
+    {authLoading && <p>Loading...</p>}
+    {!authLoading &&
+      !authUser && (
+        <a className="twitch-login" href="/auth/twitch">
+          Login with Twitch
+        </a>
+      )}
+    {!authLoading &&
+      !!authUser && (
+        <p>
+          <img src={authUser.logo} width="100" height="100" />
+          <br />
+          <span className="auth-display-name">{authUser.display_name}</span>
+          <br />
+          <span className="logout">
+            [<a href="/auth/logout">Logout</a>]
+          </span>
+        </p>
+      )}
   </div>
 );
 

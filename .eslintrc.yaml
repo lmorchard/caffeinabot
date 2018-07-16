@@ -39,7 +39,7 @@ overrides:
       process: true
       require: true
   -
-    files: ['backend/**/*.js']
+    files: ['backend/**/*.js', 'config/**/*.js']
     env:
       node: true
   -

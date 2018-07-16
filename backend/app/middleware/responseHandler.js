@@ -120,4 +120,3 @@ function responseHandler() {
 }
 
 module.exports = responseHandler;
-
