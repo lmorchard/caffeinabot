@@ -1,17 +1,21 @@
 const http = require("http");
 const Koa = require("koa");
-const convert = require("koa-connect");
-const history = require("connect-history-api-fallback");
 const KoaStatic = require("koa-static");
-const setupApp = require("./app");
+
+const setupContext = require("../lib/context");
+const setupApp = require("../backend/app");
+const setupChatbot = require("../chatbot");
 
 const app = new Koa();
 const server = http.createServer(app.callback());
 
 app.use(KoaStatic("./frontend/build/"));
-const { log, config } = setupApp(app, server);
-app.use(convert(history()));
 
+const context = setupContext(app, server);
+setupApp(context);
+setupChatbot(context);
+
+const { log, config } = context;
 const host = config.get("host");
 const port = config.get("port");
 const httpProto = config.get("useHTTPS") ? "HTTPS" : "HTTP";

@@ -11,9 +11,12 @@ import {
 } from "connected-react-router";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { reducers, actions } from "./lib/store";
-import App from "./components/App";
 
+import "./semantic.cyborg.css";
+import "font-awesome/css/font-awesome.css";
 import "./index.scss";
+
+import App from "./components/App";
 
 let history, store, socket;
 

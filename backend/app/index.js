@@ -1,6 +1,8 @@
-module.exports = (app, server) => {
-  const context = require("./context")(app, server);
-  const { log, config } = context;
+const convert = require("koa-connect");
+const history = require("connect-history-api-fallback");
+
+module.exports = (context) => {
+  const { log, config, app, server } = context;
 
   require("./middleware")(context);
   require("./sessions")(context);
@@ -8,15 +10,5 @@ module.exports = (app, server) => {
   require("./sockets")(context);
   require("./routes")(context);
 
-  if (config.get("verbose")) {
-    const { PrettyBunyan } = require("../lib/utils");
-    const verboseStream = new PrettyBunyan();
-    log.addStream({
-      type: "raw",
-      level: "debug",
-      stream: verboseStream
-    });
-  }
-
-  return context;
+  app.use(convert(history()));
 };

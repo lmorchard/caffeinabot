@@ -2,14 +2,13 @@ const webpack = require("webpack");
 const path = require("path");
 const config = require("config");
 
-const convert = require("koa-connect");
-const history = require("connect-history-api-fallback");
-
 const ConfigWebpackPlugin = require("config-webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+const setupContext = require("./lib/context");
 const setupApp = require("./backend/app");
+const setupChatbot = require("./chatbot");
 
 const host = config.get("host") || "127.0.0.1";
 const port = config.get("port") || "80";
@@ -33,13 +32,14 @@ module.exports = {
     port,
     hotClient: {
       host,
-      port: Number.parseInt(port, 10) + 1
+      port: Number.parseInt(port, 10) + 10
     },
     content: contentPath,
     clipboard: false,
     add: (app, middleware, options) => {
-      setupApp(app, app.server);
-      app.use(convert(history()));
+      const context = setupContext(app, app.server);
+      setupApp(context);
+      setupChatbot(context);
     }
   },
   plugins: [
@@ -84,8 +84,33 @@ module.exports = {
         }
       },
       {
-        test: /\.(sa|sc|c)ss$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader"
+        ]
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          "postcss-loader",
+          "sass-loader"
+        ]
+      },
+      {
+        test: /\.(ttf|woff|woff2|eot)$/i,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              hash: "sha512",
+              digest: "hex",
+              name: "fonts/[name]-[hash].[ext]"
+            }
+          }
+        ]
       },
       {
         test: /\.(jpe?g|gif|png|svg)$/i,
@@ -95,7 +120,7 @@ module.exports = {
             options: {
               hash: "sha512",
               digest: "hex",
-              name: "[name]-[hash].[ext]"
+              name: "images/[name]-[hash].[ext]"
             }
           },
           {

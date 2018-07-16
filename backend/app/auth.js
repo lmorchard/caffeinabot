@@ -1,18 +1,19 @@
 const passport = require("koa-passport");
 const route = require("koa-route");
+const Router = require("koa-router");
 const twitchStrategy = require("passport-twitch").Strategy;
 
 module.exports = ({ log, db, config, app, server, baseURL }) => {
-  const twitchConfig = config.get("twitch");
-
   passport.serializeUser((user, done) => done(null, user._id));
 
   passport.deserializeUser((_id, done) => {
-    db.users.findOne({ _id })
+    db.users
+      .findOne({ _id })
       .then(record => done(null, record ? record.user : null))
       .catch(err => done(err, null));
   });
 
+  const twitchConfig = config.get("twitch");
   passport.use(
     new twitchStrategy(
       {
@@ -22,33 +23,40 @@ module.exports = ({ log, db, config, app, server, baseURL }) => {
         scope: "user_read"
       },
       (accessToken, refreshToken, profile, done) => {
-        const { id: _id, _json: user} = profile;
-        db.users.update({ _id }, { _id, user }, { upsert: true })
+        const { id: _id, _json } = profile;
+        const user = { ..._json, accessToken, refreshToken };
+        log.debug("Twitch profile", user);
+        db.users
+          .update({ _id }, { _id, user }, { upsert: true })
           .then(() => done(null, user))
           .catch(err => done(err, null));
       }
     )
   );
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+  const router = new Router({ prefix: "/auth" });
 
-  app.use(route.get("/auth/user", ctx => {
-    ctx.set("Content-Type", "application/json");
-    ctx.body = ctx.isAuthenticated() ? ctx.req.user : false;
-  }));
-
-  app.use(route.get("/auth/logout", ctx => {
-    ctx.logout();
-    ctx.redirect("/");
-  }));
-
-  app.use(route.get("/auth/twitch", passport.authenticate("twitch")));
-
-  app.use(route.get("/auth/twitch/callback",
-    passport.authenticate("twitch", {
-      successRedirect: "/?auth=1",
-      failureRedirect: "/?authfail=1"
+  router
+    .get("/user", ctx => {
+      ctx.set("Content-Type", "application/json");
+      ctx.body = ctx.isAuthenticated() ? ctx.req.user : false;
     })
-  ));
+    .get("/logout", ctx => {
+      ctx.logout();
+      ctx.redirect("/");
+    })
+    .get("/twitch", passport.authenticate("twitch"))
+    .get(
+      "/twitch/callback",
+      passport.authenticate("twitch", {
+        successRedirect: "/?auth=1",
+        failureRedirect: "/?authfail=1"
+      })
+    );
+
+  app
+    .use(passport.initialize())
+    .use(passport.session())
+    .use(router.routes())
+    .use(router.allowedMethods());
 };
