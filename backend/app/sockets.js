@@ -1,6 +1,7 @@
 const url = require("url");
 const WebSocket = require("ws");
 const Cookies = require("cookies");
+const uuidV4 = require("uuid/v4");
 
 module.exports = ({ log, db, app, config, server, baseURL }) => {
   const wss = new WebSocket.Server({
@@ -9,25 +10,22 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
       if (origin !== baseURL) {
         return cb(false, 403, "Disallowed origin", {});
       }
-      return cb(true);
+      fetchUser(req).then(user => {
+        req.user = user;
+        return cb(true);
+      }).catch(err => {
+        return cb(false, 403, "Authenticated user required", {});
+      });
     }
   });
 
   server.on("upgrade", (req, socket, head) => {
     const pathname = url.parse(req.url).pathname;
-    if (pathname !== "/socket") {
-      return;
+    if (pathname === "/socket") {
+      wss.handleUpgrade(req, socket, head, ws => {
+        wss.emit("connection", ws, req);
+      });
     }
-    wss.handleUpgrade(req, socket, head, ws => {
-      fetchUser(req)
-        .then(user => {
-          ws.user = user;
-          wss.emit("connection", ws, req);
-        })
-        .catch(err => {
-          wss.emit("connection", ws, req);
-        });
-    });
   });
 
   // TODO: Stop reimplementing sessions and passport user lookup here.
@@ -57,13 +55,14 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
     return userRecord ? userRecord.user : null;
   };
 
-  wss.on("connection", function connection(ws) {
-    log.debug("WebSocket connection from %s", (ws.user || {}).name);
+  wss.on("connection", function connection(ws, req) {
+    ws.user = req.user;
+    ws.id = uuidV4();
+    log.debug("WebSocket connection %s from %s", ws.id, (ws.user || {}).name);
     ws.on("message", function incoming(message) {
       log.debug("received: %s from %s", message, ws.user);
       ws.send(`HEARD YOU SAY ${message}`);
     });
-
     ws.send("something");
   });
 
