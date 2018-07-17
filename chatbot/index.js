@@ -19,7 +19,7 @@ module.exports = ({ log, db, config }) => {
   });
 
   client.on("chat", (channel, userstate, message, self) => {
-    console.log(
+    log.debug(
       `Message "${message}" received from ${userstate["display-name"]}`
     );
 

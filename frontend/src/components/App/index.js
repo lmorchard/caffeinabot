@@ -26,16 +26,16 @@ const mapStateToProps = state => {
 
 export const AppComponent = props => (
   <div className="app">
-        <nav class="ui borderless menu">
-          <div class="ui container">
-            <a class="brand item" href="/"><img style={{ color: "white" }} src={Logo} /></a><a class="item" href="/themes">Themes</a><a class="item" href="/templates">Templates</a><a class="item" href="/blog">Blog</a>
-            <div class="right menu">
-              <a class="item" href="https://github.com/semantic-ui-forest"><i class="github icon"></i></a><a class="item" href="/atom.xml"><i class="feed icon"></i></a>
-              <div class="item">
-                <form action="https://www.google.com/search" class="ui form" method="get" target="_blank">
+        <nav className="ui borderless menu">
+          <div className="ui container">
+            <a className="brand item" href="/"><img style={{ color: "white" }} src={Logo} /></a><a className="item" href="/themes">Themes</a><a className="item" href="/templates">Templates</a><a className="item" href="/blog">Blog</a>
+            <div className="right menu">
+              <a className="item" href="https://github.com/semantic-ui-forest"><i className="github icon"></i></a><a className="item" href="/atom.xml"><i className="feed icon"></i></a>
+              <div className="item">
+                <form action="https://www.google.com/search" className="ui form" method="get" target="_blank">
                   <input name="q" type="hidden" value="site:semantic-ui-forest.com" />
-                  <div class="ui left icon transparent input">
-                    <input name="q" placeholder="Search..." type="text" /><i class="search icon"></i>
+                  <div className="ui left icon transparent input">
+                    <input name="q" placeholder="Search..." type="text" /><i className="search icon"></i>
                   </div>
                 </form>
               </div>

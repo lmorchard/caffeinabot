@@ -9,4 +9,4 @@ module.exports = context => {
   app.use(requestId());
   app.use(log(context));
   app.use(responseHandler());
-}
+};

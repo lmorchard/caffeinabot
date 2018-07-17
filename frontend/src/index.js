@@ -68,7 +68,7 @@ function setupWebSocket() {
   } = actions;
 
   const { protocol, host } = window.location;
-  socket = new ReconnectingWebSocket(`${protocol === "https" ? "wss" : "ws"}://${host}`);
+  socket = new ReconnectingWebSocket(`${protocol === "https" ? "wss" : "ws"}://${host}/socket`);
 
   store.dispatch(setSocketConnecting());
 

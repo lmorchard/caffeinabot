@@ -1,5 +1,4 @@
 const passport = require("koa-passport");
-const route = require("koa-route");
 const Router = require("koa-router");
 const twitchStrategy = require("passport-twitch").Strategy;
 

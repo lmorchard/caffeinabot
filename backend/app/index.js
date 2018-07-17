@@ -2,7 +2,7 @@ const convert = require("koa-connect");
 const history = require("connect-history-api-fallback");
 
 module.exports = (context) => {
-  const { log, config, app, server } = context;
+  const { app } = context;
 
   require("./middleware")(context);
   require("./sessions")(context);

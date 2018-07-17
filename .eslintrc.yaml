@@ -34,16 +34,25 @@ rules:
 
 overrides:
   -
-    files: ['frontend/src/**/*.js']
+    files:
+      - 'frontend/src/**/*.js'
     globals:
+      module: true
       process: true
       require: true
   -
-    files: ['backend/**/*.js', 'config/**/*.js']
+    files:
+      - 'lib/**/*.js'
+      - 'backend/**/*.js'
+      - 'chatbot/**/*.js'
+      - 'config/**/*.js'
     env:
       node: true
   -
-    files: ['webpack.*.js','bin/*.js']
+    files:
+      - 'webpack.*.js'
+      - 'postcss.config.js'
+      - 'bin/*.js'
     rules:
       import/unambiguous: off
     env:
@@ -51,8 +60,8 @@ overrides:
   -
     files:
       - 'lib/test-setup.js'
-      - 'frontend/src/**/*-test.js'
-      - 'backend/**/*-test.js'
+      - '**/*-test.js'
+      - '**/tests.js'
     rules:
       import/unambiguous: off
     env:
