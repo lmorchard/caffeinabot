@@ -1,3 +1,45 @@
+@import "~font-awesome/css/font-awesome.css";
+@import "~react-grid-layout/css/styles.css";
+@import "~react-resizable/css/styles.css";
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #212;
+  color: #eee;
+  font-family: sans-serif;
+}
+
+nav.topNav {
+  margin: 10px 10px 0 10px;
+  width: calc(100% - 20px);
+  min-height: 64px;
+  background-color: #323;
+  color: #eee;
+  box-shadow: 4px 4px 6px #000;
+  display: flex;
+  flex-direction: row;
+
+  section {
+    flex: 1;
+  }
+  section.primary {
+    text-align: left;
+  }
+  section.secondary {
+    text-align: right;
+  }
+}
+
+.panels {
+  // border: 1px solid #eee;
+  .panel {
+    background-color: #323;
+    color: #eee;
+    box-shadow: 4px 4px 6px #000;
+  }
+}
+
 .auth-status {
   .twitch-login {
     width: 170px;

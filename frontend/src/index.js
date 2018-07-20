@@ -12,8 +12,6 @@ import {
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { reducers, actions } from "./lib/store";
 
-import "./semantic.cyborg.css";
-import "font-awesome/css/font-awesome.css";
 import "./index.scss";
 
 import App from "./components/App";

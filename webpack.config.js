@@ -86,6 +86,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
+          "css-hot-loader",
           MiniCssExtractPlugin.loader,
           "css-loader"
         ]
@@ -93,6 +94,7 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
+          "css-hot-loader",
           MiniCssExtractPlugin.loader,
           "css-loader",
           "postcss-loader",

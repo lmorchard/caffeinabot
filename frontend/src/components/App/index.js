@@ -3,10 +3,14 @@ import { connect } from "react-redux";
 import { Route, Link, Switch } from "react-router-dom";
 import { hot } from "react-hot-loader";
 import { /* actions, */ selectors } from "../../lib/store";
-
+import GridLayout from "react-grid-layout";
 import Resizable from "re-resizable";
-
 import SystemTime from "../SystemTime";
+
+import { WidthProvider, Responsive } from "react-grid-layout";
+
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
+const originalLayouts = getFromLS("layouts") || {};
 
 import "./index.scss";
 
@@ -24,29 +28,122 @@ const mapStateToProps = state => {
   };
 };
 
+/**
+ * This layout demonstrates how to sync multiple responsive layouts to localstorage.
+ */
+class ResponsiveLocalStorageLayout extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      layouts: JSON.parse(JSON.stringify(originalLayouts))
+    };
+  }
+
+  static get defaultProps() {
+    return {
+      className: "layout",
+      cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
+      rowHeight: 30
+    };
+  }
+
+  onLayoutChange(layout, layouts) {
+    saveToLS("layouts", layouts);
+    this.setState({ layouts });
+  }
+
+  render() {
+    return (
+      <div>
+        <ResponsiveReactGridLayout
+          className="panels"
+          compactType="horizontal"
+          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+          rowHeight={30}
+          layouts={this.state.layouts}
+          onLayoutChange={(layout, layouts) =>
+            this.onLayoutChange(layout, layouts)}
+        >
+          <div
+            className="panel"
+            key="1"
+            data-grid={{ w: 2, h: 3, x: 0, y: 0, minW: 2, minH: 3 }}
+          >
+            <span className="text">1</span>
+          </div>
+          <div
+            className="panel"
+            key="2"
+            data-grid={{ w: 2, h: 3, x: 2, y: 0, minW: 2, minH: 3 }}
+          >
+            <span className="text">2</span>
+          </div>
+          <div
+            className="panel"
+            key="3"
+            data-grid={{ w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }}
+          >
+            <span className="text">3</span>
+          </div>
+          <div
+            className="panel"
+            key="4"
+            data-grid={{ w: 2, h: 3, x: 6, y: 0, minW: 2, minH: 3 }}
+          >
+            <span className="text">4</span>
+          </div>
+          <div
+            className="panel"
+            key="5"
+            data-grid={{ w: 2, h: 3, x: 8, y: 0, minW: 2, minH: 3 }}
+          >
+            <span className="text">5</span>
+          </div>
+        </ResponsiveReactGridLayout>
+      </div>
+    );
+  }
+}
+
+function getFromLS(key) {
+  let ls = {};
+  if (global.localStorage) {
+    try {
+      ls = JSON.parse(global.localStorage.getItem("rgl-8")) || {};
+    } catch (e) {
+      /*Ignore*/
+    }
+  }
+  return ls[key];
+}
+
+function saveToLS(key, value) {
+  if (global.localStorage) {
+    global.localStorage.setItem(
+      "rgl-8",
+      JSON.stringify({
+        [key]: value
+      })
+    );
+  }
+}
+
 export const AppComponent = props => (
   <div className="app">
-        <nav className="ui borderless menu">
-          <div className="ui container">
-            <a className="brand item" href="/"><img style={{ color: "white" }} src={Logo} /></a><a className="item" href="/themes">Themes</a><a className="item" href="/templates">Templates</a><a className="item" href="/blog">Blog</a>
-            <div className="right menu">
-              <a className="item" href="https://github.com/semantic-ui-forest"><i className="github icon"></i></a><a className="item" href="/atom.xml"><i className="feed icon"></i></a>
-              <div className="item">
-                <form action="https://www.google.com/search" className="ui form" method="get" target="_blank">
-                  <input name="q" type="hidden" value="site:semantic-ui-forest.com" />
-                  <div className="ui left icon transparent input">
-                    <input name="q" placeholder="Search..." type="text" /><i className="search icon"></i>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </nav>
+    <nav className="topNav">
+      <section className="primary">
+        <img src={Logo} style={{ width: 48, height: 48, margin: (64 - 48) / 2 }} />
+      </section>
+      <section className="secondary">
+        <SystemTime {...props} />
+        <AuthStatus {...props} />
+      </section>
+    </nav>
 
+    <ResponsiveLocalStorageLayout />
     <h1>Hello world!</h1>
-    <AuthStatus {...props} />
     <p>Socket is: {props.socketStatus}</p>
-    <SystemTime {...props} />
     <Resizable
       style={{
         display: "flex",
@@ -99,7 +196,7 @@ const AuthStatus = ({ authLoading, authUser }) => (
     {!authLoading &&
       !!authUser && (
         <p>
-          <img src={authUser.logo} width="100" height="100" />
+          <img src={authUser.logo} width="32" height="32" />
           <br />
           <span className="auth-display-name">{authUser.display_name}</span>
           <br />
