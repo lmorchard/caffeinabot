@@ -1,11 +1,11 @@
 import React from "react";
+import classnames from "classnames";
 import { connect } from "react-redux";
 import { Route, Link, Switch } from "react-router-dom";
 import { hot } from "react-hot-loader";
 import { /* actions, */ selectors } from "../../lib/store";
 import GridLayout from "react-grid-layout";
 import Resizable from "re-resizable";
-import SystemTime from "../SystemTime";
 
 import { WidthProvider, Responsive } from "react-grid-layout";
 
@@ -28,6 +28,49 @@ const mapStateToProps = state => {
   };
 };
 
+export const AppComponent = props => (
+  <div className="app">
+    <nav className="topNav">
+      <section className="primary">
+        <img src={Logo} className="logo" />
+        <h1>caffeinabot</h1>
+      </section>
+      <section className="secondary">
+        <AuthStatus {...props} />
+      </section>
+    </nav>
+
+    <ResponsiveLocalStorageLayout />
+
+    <p>Socket is: {props.socketStatus}</p>
+    <SystemTime {...props} />
+
+    <ul>
+      <li>
+        <Link to="/">Home</Link>
+      </li>
+      <li>
+        <Link to="/about">About</Link>
+      </li>
+      <li>
+        <Link to="/topics">Topics</Link>
+      </li>
+    </ul>
+
+    <hr />
+
+    <Switch>
+      <Route exact path="/" component={() => <p>Home!</p>} />
+      <Route path="/about" component={() => <p>About!</p>} />
+      <Route path="/topics" component={() => <p>Topics!</p>} />
+    </Switch>
+  </div>
+);
+
+export default connect(mapStateToProps, mapDispatchToProps)(
+  hot(module)(AppComponent)
+);
+
 /**
  * This layout demonstrates how to sync multiple responsive layouts to localstorage.
  */
@@ -48,7 +91,13 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
     };
   }
 
+  resetLayout() {
+    console.log("RESET");
+    this.setState({ layouts: {} });
+  }
+
   onLayoutChange(layout, layouts) {
+    console.log("ON LAYOUT CHANGE", layout, layouts);
     saveToLS("layouts", layouts);
     this.setState({ layouts });
   }
@@ -61,45 +110,38 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
           compactType="horizontal"
           cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
           rowHeight={30}
-          layouts={this.state.layouts}
+          draggableHandle=".titleBar"
+          layouts={this.state.layouts || defaultLayout}
           onLayoutChange={(layout, layouts) =>
             this.onLayoutChange(layout, layouts)}
         >
-          <div
-            className="panel"
-            key="1"
-            data-grid={{ w: 2, h: 3, x: 0, y: 0, minW: 2, minH: 3 }}
-          >
-            <span className="text">1</span>
-          </div>
-          <div
-            className="panel"
-            key="2"
-            data-grid={{ w: 2, h: 3, x: 2, y: 0, minW: 2, minH: 3 }}
-          >
-            <span className="text">2</span>
-          </div>
-          <div
-            className="panel"
-            key="3"
-            data-grid={{ w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }}
-          >
+          {Panel1({})}
+
+          {Panel2({})}
+
+          {Panel(
+            {
+              key: "3",
+              dataGrid: { w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }
+            },
             <span className="text">3</span>
-          </div>
-          <div
-            className="panel"
-            key="4"
-            data-grid={{ w: 2, h: 3, x: 6, y: 0, minW: 2, minH: 3 }}
-          >
+          )}
+
+          {Panel(
+            {
+              key: "4",
+              dataGrid: { w: 2, h: 3, x: 6, y: 0, minW: 2, minH: 3 }
+            },
             <span className="text">4</span>
-          </div>
-          <div
-            className="panel"
-            key="5"
-            data-grid={{ w: 2, h: 3, x: 8, y: 0, minW: 2, minH: 3 }}
-          >
+          )}
+
+          {Panel(
+            {
+              key: "5",
+              dataGrid: { w: 2, h: 3, x: 8, y: 0, minW: 2, minH: 3 }
+            },
             <span className="text">5</span>
-          </div>
+          )}
         </ResponsiveReactGridLayout>
       </div>
     );
@@ -129,59 +171,8 @@ function saveToLS(key, value) {
   }
 }
 
-export const AppComponent = props => (
-  <div className="app">
-    <nav className="topNav">
-      <section className="primary">
-        <img src={Logo} style={{ width: 48, height: 48, margin: (64 - 48) / 2 }} />
-      </section>
-      <section className="secondary">
-        <SystemTime {...props} />
-        <AuthStatus {...props} />
-      </section>
-    </nav>
-
-    <ResponsiveLocalStorageLayout />
-    <h1>Hello world!</h1>
-    <p>Socket is: {props.socketStatus}</p>
-    <Resizable
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "solid 1px #ddd",
-        background: "#f0f0f0"
-      }}
-      defaultSize={{
-        width: 200,
-        height: 200
-      }}
-      onResizeStop={(e, direction, ref, d) => {
-        console.log("RESIZE STOP", { e, direction, ref, d }); // eslint-disable-line
-      }}
-    >
-      001
-    </Resizable>
-    <ul>
-      <li>
-        <Link to="/">Home</Link>
-      </li>
-      <li>
-        <Link to="/about">About</Link>
-      </li>
-      <li>
-        <Link to="/topics">Topics</Link>
-      </li>
-    </ul>
-
-    <hr />
-
-    <Switch>
-      <Route exact path="/" component={() => <p>Home!</p>} />
-      <Route path="/about" component={() => <p>About!</p>} />
-      <Route path="/topics" component={() => <p>Topics!</p>} />
-    </Switch>
-  </div>
+const SystemTime = ({ systemTime }) => (
+  <div className="system-time">{new Date(systemTime).toISOString()}</div>
 );
 
 const AuthStatus = ({ authLoading, authUser }) => (
@@ -195,19 +186,87 @@ const AuthStatus = ({ authLoading, authUser }) => (
       )}
     {!authLoading &&
       !!authUser && (
-        <p>
-          <img src={authUser.logo} width="32" height="32" />
-          <br />
-          <span className="auth-display-name">{authUser.display_name}</span>
-          <br />
-          <span className="logout">
-            [<a href="/auth/logout">Logout</a>]
-          </span>
-        </p>
+        <React.Fragment>
+          <div className="meta">
+            <div className="auth-display-name">{authUser.display_name}</div>
+            <div className="logout">
+              <a href="/auth/logout">Logout</a>
+            </div>
+          </div>
+          <img className="avatar" src={authUser.logo} />
+        </React.Fragment>
       )}
   </div>
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  hot(module)(AppComponent)
+const Panel = (
+  {
+    title = "Panel",
+    className = "",
+    key = "1",
+    dataGrid = { w: 2, h: 3, x: 2, y: 0, minW: 2, minH: 3 }
+  },
+  children = null
+) => (
+  <div
+    className={classnames("panel", className)}
+    key={key}
+    data-grid={dataGrid}
+  >
+    <div className="wrapper">
+      <header className="titleBar">
+        <i className="fa fa-bars" aria-hidden="true" />
+        <span>{title}</span>
+      </header>
+      <section className="content">{children}</section>
+    </div>
+  </div>
+);
+
+const Panel2 = ({ title = "Panel 2" }) => (
+  <div
+    className="panel panel-2"
+    key="2"
+    data-grid={{ w: 2, h: 3, x: 2, y: 0, minW: 2, minH: 3 }}
+  >
+    <div className="wrapper">
+      <header className="titleBar">
+        <i className="fa fa-bars" aria-hidden="true" />
+        <span>{title}</span>
+      </header>
+      <section className="content">
+        <p>This is some test content</p>
+        <ul>
+          <li>One</li>
+          <li>Two</li>
+          <li>Three</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+);
+
+const Panel1 = ({ title = "Panel 1" }) => (
+  <div
+    key="1"
+    data-grid={{ w: 2, h: 3, x: 0, y: 0, minW: 2, minH: 3 }}
+    className="panel panel-1"
+  >
+    <div className="wrapper">
+      <header className="titleBar">
+        <i className="fa fa-bars" aria-hidden="true" />
+        <span>{title}</span>
+      </header>
+      <section className="content">
+        <div className="griddy">
+          <div className="one">One</div>
+          <div className="two">Two</div>
+          <div className="three">Three</div>
+          <div className="four">Four</div>
+          <div className="five">Five</div>
+          <div className="six">Six</div>
+        </div>
+      </section>
+    </div>
+  </div>
 );
