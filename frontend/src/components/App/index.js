@@ -40,30 +40,7 @@ export const AppComponent = props => (
       </section>
     </nav>
 
-    <ResponsiveLocalStorageLayout />
-
-    <p>Socket is: {props.socketStatus}</p>
-    <SystemTime {...props} />
-
-    <ul>
-      <li>
-        <Link to="/">Home</Link>
-      </li>
-      <li>
-        <Link to="/about">About</Link>
-      </li>
-      <li>
-        <Link to="/topics">Topics</Link>
-      </li>
-    </ul>
-
-    <hr />
-
-    <Switch>
-      <Route exact path="/" component={() => <p>Home!</p>} />
-      <Route path="/about" component={() => <p>About!</p>} />
-      <Route path="/topics" component={() => <p>Topics!</p>} />
-    </Switch>
+    <ResponsiveLocalStorageLayout {...props} />
   </div>
 );
 
@@ -92,17 +69,17 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
   }
 
   resetLayout() {
-    console.log("RESET");
     this.setState({ layouts: {} });
   }
 
   onLayoutChange(layout, layouts) {
-    console.log("ON LAYOUT CHANGE", layout, layouts);
     saveToLS("layouts", layouts);
     this.setState({ layouts });
   }
 
   render() {
+    const { authUser, authLoading } = this.props;
+
     return (
       <div>
         <ResponsiveReactGridLayout
@@ -121,26 +98,46 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
 
           {Panel(
             {
+              title: "Socket status",
               key: "3",
               dataGrid: { w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }
             },
-            <span className="text">3</span>
+            <div>
+              <p>Socket is: {this.props.socketStatus}</p>
+              <SystemTime systemTime={this.props.systemTime} />
+            </div>
           )}
 
           {Panel(
             {
+              title: "Twitch Chat",
               key: "4",
               dataGrid: { w: 2, h: 3, x: 6, y: 0, minW: 2, minH: 3 }
             },
-            <span className="text">4</span>
+            authLoading ? <p>Loading...</p> :
+            <iframe
+              frameborder="0"
+              scrolling="no"
+              id="chat_embed"
+              style={{ width: "100%", height: "100%" }}
+              src={`http://www.twitch.tv/embed/${authUser.name}/chat?darkpopout`}
+            />
           )}
 
           {Panel(
             {
+              title: "Twitch Preview",
               key: "5",
               dataGrid: { w: 2, h: 3, x: 8, y: 0, minW: 2, minH: 3 }
             },
-            <span className="text">5</span>
+            authLoading ? <p>Loading...</p> :
+            <iframe
+              frameborder="0"
+              scrolling="no"
+              id="chat_embed"
+              style={{ width: "100%", height: "100%" }}
+              src={`http://player.twitch.tv/?channel=${authUser.name}&muted=true&autoplay=true`}
+            />
           )}
         </ResponsiveReactGridLayout>
       </div>
