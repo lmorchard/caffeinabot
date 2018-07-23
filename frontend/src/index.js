@@ -14,7 +14,8 @@ import { reducers, actions } from "./lib/store";
 
 import "./index.scss";
 
-import App from "./components/App";
+//import App from "./components/App";
+import Overlay from "./components/Overlay";
 
 let history, store, socket;
 
@@ -95,7 +96,7 @@ function renderApp() {
   render(
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <App />
+        <Overlay />
       </ConnectedRouter>
     </Provider>,
     document.getElementById("root")

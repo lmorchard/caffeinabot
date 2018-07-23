@@ -5,7 +5,6 @@ import { Route, Link, Switch } from "react-router-dom";
 import { hot } from "react-hot-loader";
 import { /* actions, */ selectors } from "../../lib/store";
 import GridLayout from "react-grid-layout";
-import Resizable from "re-resizable";
 
 import { WidthProvider, Responsive } from "react-grid-layout";
 
@@ -87,14 +86,43 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
           compactType="horizontal"
           cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
           rowHeight={30}
-          draggableHandle=".titleBar"
+          preventCollision={false}
+          draggableHandle=".dragHandle"
           layouts={this.state.layouts || defaultLayout}
           onLayoutChange={(layout, layouts) =>
             this.onLayoutChange(layout, layouts)}
         >
-          {Panel1({})}
+          {Panel(
+            {
+              title: "This is an extra long panel title that should break because it should be really extra long that stretches quite a long distance",
+              key: "1",
+              dataGrid: { w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }
+            },
+            <React.Fragment>
+              <p>This is some test content</p>
+              <ul>
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+              </ul>
+            </React.Fragment>
+          )}
 
-          {Panel2({})}
+          {Panel(
+            {
+              title: "Griddy",
+              key: "2",
+              dataGrid: { w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }
+            },
+            <div className="griddy">
+              <div className="one">One</div>
+              <div className="two">Two</div>
+              <div className="three">Three</div>
+              <div className="four">Four</div>
+              <div className="five">Five</div>
+              <div className="six">Six</div>
+            </div>
+          )}
 
           {Panel(
             {
@@ -116,7 +144,7 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
             },
             authLoading ? <p>Loading...</p> :
             <iframe
-              frameborder="0"
+              frameBorder="0"
               scrolling="no"
               id="chat_embed"
               style={{ width: "100%", height: "100%" }}
@@ -132,7 +160,7 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
             },
             authLoading ? <p>Loading...</p> :
             <iframe
-              frameborder="0"
+              frameBorder="0"
               scrolling="no"
               id="chat_embed"
               style={{ width: "100%", height: "100%" }}
@@ -211,59 +239,13 @@ const Panel = (
     data-grid={dataGrid}
   >
     <div className="wrapper">
-      <header className="titleBar">
-        <i className="fa fa-bars" aria-hidden="true" />
-        <span>{title}</span>
+      <header>
+        <button className="menu"><i className="fa fa-bars" aria-hidden="true" /></button>
+        <span className="title dragHandle">{title}</span>
+        <button className="pin inactive"><i className="fa fa-thumb-tack" aria-hidden="true"></i></button>
+        <button className="close"><i className="fa fa-times" aria-hidden="true"></i></button>
       </header>
       <section className="content">{children}</section>
-    </div>
-  </div>
-);
-
-const Panel2 = ({ title = "Panel 2" }) => (
-  <div
-    className="panel panel-2"
-    key="2"
-    data-grid={{ w: 2, h: 3, x: 2, y: 0, minW: 2, minH: 3 }}
-  >
-    <div className="wrapper">
-      <header className="titleBar">
-        <i className="fa fa-bars" aria-hidden="true" />
-        <span>{title}</span>
-      </header>
-      <section className="content">
-        <p>This is some test content</p>
-        <ul>
-          <li>One</li>
-          <li>Two</li>
-          <li>Three</li>
-        </ul>
-      </section>
-    </div>
-  </div>
-);
-
-const Panel1 = ({ title = "Panel 1" }) => (
-  <div
-    key="1"
-    data-grid={{ w: 2, h: 3, x: 0, y: 0, minW: 2, minH: 3 }}
-    className="panel panel-1"
-  >
-    <div className="wrapper">
-      <header className="titleBar">
-        <i className="fa fa-bars" aria-hidden="true" />
-        <span>{title}</span>
-      </header>
-      <section className="content">
-        <div className="griddy">
-          <div className="one">One</div>
-          <div className="two">Two</div>
-          <div className="three">Three</div>
-          <div className="four">Four</div>
-          <div className="five">Five</div>
-          <div className="six">Six</div>
-        </div>
-      </section>
     </div>
   </div>
 );
