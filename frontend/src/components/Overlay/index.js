@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { hot } from "react-hot-loader";
 import Draggable from "react-draggable";
 import Resizable from "re-resizable";
-//import { ResizableBox } from "react-resizable";
+import Rnd from "react-rnd";
 import { /* actions, */ selectors } from "../../lib/store";
 
 import "./index.scss";
@@ -46,7 +46,7 @@ export class Overlay extends React.Component {
     return (
       <div>
         {Object.entries(items).map(([id, item]) => (
-          <OverlayBox {...{ key: id, id, item, updateItem }} />
+          <OverlayItem {...{ key: id, id, item, updateItem }} />
         ))}
         <pre>{JSON.stringify(items, null, " ")}</pre>
       </div>
@@ -54,93 +54,40 @@ export class Overlay extends React.Component {
   }
 }
 
-class OverlayBox extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = this.stateFromItem(props.item);
-  }
-
-  stateFromItem(item) {
-    const { x, y, width, height } = item;
-    return {
-      x,
-      y,
-      width,
-      height,
-      deltaX: 0,
-      deltaY: 0,
-      deltaWidth: 0,
-      deltaHeight: 0
-    };
-  }
-
-  reset = () => {
-    this.setState(this.stateFromItem(this.props.item));
-  };
-
-  commit = () => {
-    const newState = {
-      x: this.state.x + this.state.deltaX,
-      y: this.state.y + this.state.deltaY,
-      width: this.state.width + this.state.deltaWidth,
-      height: this.state.height + this.state.deltaHeight,
-      deltaX: 0,
-      deltaY: 0,
-      deltaWidth: 0,
-      deltaHeight: 0
-    };
-    this.setState(newState);
-    this.props.updateItem(
-      this.props.item.id,
-      newState.x,
-      newState.y,
-      newState.width,
-      newState.height
-    );
-  };
-
-  handleDrag = (ev, { x, y }) => this.setState({ x, y });
-
-  handleResize = (ev, dir, ref, delta) => {
-    const newState = { deltaWidth: delta.width, deltaHeight: delta.height };
-    const ldir = dir.toLowerCase();
-    if (ldir.includes("top")) {
-      newState.deltaY = 0 - delta.height;
+const OverlayItem = ({
+  id,
+  item: { x, y, width, height },
+  updateItem,
+  className = "overlayBox"
+}) => (
+  <Rnd
+    className={className}
+    position={{ x, y }}
+    size={{ width, height }}
+    style={{ cursor: "normal" }}
+    resizeHandleWrapperClass="handles"
+    resizeHandleClasses={{
+      left: "left",
+      right: "right",
+      top: "top",
+      bottom: "bottom",
+      bottomLeft: "bottomLeft",
+      bottomRight: "bottomRight",
+      topLeft: "topLeft",
+      topRight: "topRight"
+    }}
+    dragHandleClassName="dragHandle"
+    onDragStop={(e, d) => updateItem(id, d.x, d.y, width, height)}
+    onResize={(e, direction, ref, delta, position) =>
+      updateItem(id, position.x, position.y, ref.offsetWidth, ref.offsetHeight)
     }
-    if (ldir.includes("left")) {
-      newState.deltaX = 0 - delta.width;
-    }
-    this.setState(newState);
-  };
-
-  render() {
-    const { item, id, setItemPosition, setItemSize } = this.props;
-    const { x, y, deltaX, deltaY, width, height } = this.state;
-    return (
-      <Draggable
-        handle=".dragHandle"
-        position={{ x: x + deltaX, y: y + deltaY }}
-        onStart={this.reset}
-        onDrag={this.handleDrag}
-        onStop={this.commit}
-      >
-        <Resizable
-          size={{ width, height }}
-          style={{ position: "absolute" }}
-          onResizeStart={this.reset}
-          onResize={this.handleResize}
-          onResizeStop={this.commit}
-        >
-          <div className="overlayBoxContent">
-            <div className="dragHandle">XXX</div>
-            <h3>{item.id}</h3>
-            <pre>{JSON.stringify(this.state, null, " ")}</pre>
-          </div>
-        </Resizable>
-      </Draggable>
-    );
-  }
-}
+  >
+    <div className="content">
+      <div className="dragHandle">XXX</div>
+      <h3>{id}</h3>
+    </div>
+  </Rnd>
+);
 
 export default connect(
   mapStateToProps,
