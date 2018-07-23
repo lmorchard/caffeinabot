@@ -46,10 +46,9 @@ export class Overlay extends React.Component {
     return (
       <div>
         {Object.entries(items).map(([id, item]) => (
-          <OverlayBox {...{ key: id, id, item, updateItem }}
-          />
+          <OverlayBox {...{ key: id, id, item, updateItem }} />
         ))}
-        <pre>{JSON.stringify(items, null, ' ')}</pre>
+        <pre>{JSON.stringify(items, null, " ")}</pre>
       </div>
     );
   }
@@ -135,7 +134,7 @@ class OverlayBox extends React.Component {
           <div className="overlayBoxContent">
             <div className="dragHandle">XXX</div>
             <h3>{item.id}</h3>
-            <pre>{JSON.stringify(this.state, null, ' ')}</pre>
+            <pre>{JSON.stringify(this.state, null, " ")}</pre>
           </div>
         </Resizable>
       </Draggable>
@@ -143,6 +142,7 @@ class OverlayBox extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  hot(module)(Overlay)
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(hot(module)(Overlay));

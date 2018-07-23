@@ -43,9 +43,10 @@ export const AppComponent = props => (
   </div>
 );
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  hot(module)(AppComponent)
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(hot(module)(AppComponent));
 
 /**
  * This layout demonstrates how to sync multiple responsive layouts to localstorage.
@@ -90,11 +91,13 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
           draggableHandle=".dragHandle"
           layouts={this.state.layouts || defaultLayout}
           onLayoutChange={(layout, layouts) =>
-            this.onLayoutChange(layout, layouts)}
+            this.onLayoutChange(layout, layouts)
+          }
         >
           {Panel(
             {
-              title: "This is an extra long panel title that should break because it should be really extra long that stretches quite a long distance",
+              title:
+                "This is an extra long panel title that should break because it should be really extra long that stretches quite a long distance",
               key: "1",
               dataGrid: { w: 2, h: 3, x: 4, y: 0, minW: 2, minH: 3 }
             },
@@ -142,14 +145,19 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
               key: "4",
               dataGrid: { w: 2, h: 3, x: 6, y: 0, minW: 2, minH: 3 }
             },
-            authLoading ? <p>Loading...</p> :
-            <iframe
-              frameBorder="0"
-              scrolling="no"
-              id="chat_embed"
-              style={{ width: "100%", height: "100%" }}
-              src={`http://www.twitch.tv/embed/${authUser.name}/chat?darkpopout`}
-            />
+            authLoading ? (
+              <p>Loading...</p>
+            ) : (
+              <iframe
+                frameBorder="0"
+                scrolling="no"
+                id="chat_embed"
+                style={{ width: "100%", height: "100%" }}
+                src={`http://www.twitch.tv/embed/${
+                  authUser.name
+                }/chat?darkpopout`}
+              />
+            )
           )}
 
           {Panel(
@@ -158,14 +166,19 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
               key: "5",
               dataGrid: { w: 2, h: 3, x: 8, y: 0, minW: 2, minH: 3 }
             },
-            authLoading ? <p>Loading...</p> :
-            <iframe
-              frameBorder="0"
-              scrolling="no"
-              id="chat_embed"
-              style={{ width: "100%", height: "100%" }}
-              src={`http://player.twitch.tv/?channel=${authUser.name}&muted=true&autoplay=true`}
-            />
+            authLoading ? (
+              <p>Loading...</p>
+            ) : (
+              <iframe
+                frameBorder="0"
+                scrolling="no"
+                id="chat_embed"
+                style={{ width: "100%", height: "100%" }}
+                src={`http://player.twitch.tv/?channel=${
+                  authUser.name
+                }&muted=true&autoplay=true`}
+              />
+            )
           )}
         </ResponsiveReactGridLayout>
       </div>
@@ -240,10 +253,16 @@ const Panel = (
   >
     <div className="wrapper">
       <header>
-        <button className="menu"><i className="fa fa-bars" aria-hidden="true" /></button>
+        <button className="menu">
+          <i className="fa fa-bars" aria-hidden="true" />
+        </button>
         <span className="title dragHandle">{title}</span>
-        <button className="pin inactive"><i className="fa fa-thumb-tack" aria-hidden="true"></i></button>
-        <button className="close"><i className="fa fa-times" aria-hidden="true"></i></button>
+        <button className="pin inactive">
+          <i className="fa fa-thumb-tack" aria-hidden="true" />
+        </button>
+        <button className="close">
+          <i className="fa fa-times" aria-hidden="true" />
+        </button>
       </header>
       <section className="content">{children}</section>
     </div>
