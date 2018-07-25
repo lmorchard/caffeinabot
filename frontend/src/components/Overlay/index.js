@@ -84,7 +84,14 @@ const OverlayItem = ({
   >
     <div className="content">
       <div className="dragHandle">XXX</div>
-      <h3>{id}</h3>
+            <div className="griddy">
+              <div className="one">{id}</div>
+              <div className="two">Two</div>
+              <div className="three">Three</div>
+              <div className="four">Four</div>
+              <div className="five">Five</div>
+              <div className="six">Six</div>
+            </div>
     </div>
   </Rnd>
 );

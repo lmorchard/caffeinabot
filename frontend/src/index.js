@@ -2,19 +2,21 @@ import React from "react";
 import { applyMiddleware, createStore, combineReducers } from "redux";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
+import promiseMiddleware from "redux-promise";
 import { composeWithDevTools } from "redux-devtools-extension";
+import { Route, Switch } from "react-router";
 import { createBrowserHistory } from "history";
 import {
   connectRouter,
   routerMiddleware,
-  ConnectedRouter
+  ConnectedRouter as Router
 } from "connected-react-router";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { reducers, actions } from "./lib/store";
 
 import "./index.scss";
 
-//import App from "./components/App";
+import App from "./components/App";
 import Overlay from "./components/Overlay";
 
 let history, store, socket;
@@ -47,7 +49,11 @@ function setupStore() {
     connectRouter(history)(combineReducers({ ...reducers })),
     initialState,
     composeEnhancers(
-      applyMiddleware(routerMiddleware(history), updateWebSocketMiddleware)
+      applyMiddleware(
+        promiseMiddleware,
+        routerMiddleware(history),
+        updateWebSocketMiddleware
+      )
     )
   );
 }
@@ -97,9 +103,12 @@ function setupWebSocket() {
 function renderApp() {
   render(
     <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Overlay />
-      </ConnectedRouter>
+      <Router history={history}>
+        <Switch>
+          <Route exact path="/" render={() => <App />} />
+          <Route path="/overlay" render={() => <Overlay />} />
+        </Switch>
+      </Router>
     </Provider>,
     document.getElementById("root")
   );
