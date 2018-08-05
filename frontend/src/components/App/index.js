@@ -3,7 +3,7 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 import { Route, Link, Switch } from "react-router-dom";
 import { hot } from "react-hot-loader";
-import { /* actions, */ selectors } from "../../lib/store";
+import { /* actions, */ selectors } from "../../../../lib/store";
 import GridLayout from "react-grid-layout";
 
 import { WidthProvider, Responsive } from "react-grid-layout";

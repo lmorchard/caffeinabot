@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import promiseMiddleware from "redux-promise";
 import { composeWithDevTools } from "redux-devtools-extension";
 import { Route, Switch } from "react-router";
+import { registerUUID, createUUIDReducer } from "react-redux-uuid";
 import { createBrowserHistory } from "history";
 import {
   connectRouter,
@@ -12,16 +13,20 @@ import {
   ConnectedRouter as Router
 } from "connected-react-router";
 import ReconnectingWebSocket from "reconnecting-websocket";
-import { reducers, actions } from "./lib/store";
+import { selectors, reducers, actions, fromServer } from "../../lib/store";
+import { makeLog } from "./lib/utils";
 
 import "./index.scss";
 
 import App from "./components/App";
 import Overlay from "./components/Overlay";
 
+const log = makeLog("index");
+
 let history, store, socket;
 
 function init() {
+  log("init");
   setupStore();
   setupWebSocket();
   setupAuth();
@@ -33,13 +38,21 @@ function init() {
   renderApp();
 }
 
+const updateWebSocketMiddleware = ({ getState }) => next => action => {
+  const nextAction = next(action);
+  const { type, payload, meta = {} } = nextAction;
+  const state = getState();
+  if (socket && selectors.socketConnected(state) && !meta.localOnly && !meta.fromServer) {
+    socket.send(JSON.stringify({
+      event: "storeDispatch",
+      action: { payload, meta, type }
+    }));
+  }
+  return nextAction;
+};
+
 function setupStore() {
   const composeEnhancers = composeWithDevTools({});
-
-  const updateWebSocketMiddleware = ({ getState }) => next => action => {
-    const returnValue = next(action);
-    return returnValue;
-  };
 
   const initialState = {};
 
@@ -55,6 +68,14 @@ function setupStore() {
         updateWebSocketMiddleware
       )
     )
+  );
+
+  store.dispatch(
+    registerUUID("overlayItems", {
+      alpha: { x: 700, y: 0, width: 320, height: 200 },
+      beta: { x: 350, y: 0, width: 320, height: 200 },
+      gamma: { x: 350, y: 210, width: 320, height: 200 }
+    })
   );
 }
 
@@ -90,15 +111,22 @@ function setupWebSocket() {
   socket.addEventListener("message", event => {
     try {
       const data = JSON.parse(event.data);
-      if (data.event === "STORE_ACTION") {
-        const { type, payload, error, meta } = data;
-        store.dispatch({ type, payload, error, meta });
-      }
+      const name = data.event in socketEventHandlers ? data.event : "default";
+      socketEventHandlers[name]({ event, data });
     } catch (err) {
-      /* no-op */
+      log("socket message error", err, event);
     }
   });
 }
+
+const socketEventHandlers = {
+  storeDispatch: ({ data: { action } }) => {
+    store.dispatch(fromServer(action));
+  },
+  default: ({ data }) => {
+    log("unexpected socket message", data);
+  }
+};
 
 function renderApp() {
   render(

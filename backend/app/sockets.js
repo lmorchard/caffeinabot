@@ -2,6 +2,7 @@ const url = require("url");
 const WebSocket = require("ws");
 const Cookies = require("cookies");
 const uuidV4 = require("uuid/v4");
+const { actions, fromServer } = require("../../lib/store");
 
 module.exports = ({ log, db, app, config, server, baseURL }) => {
   const wss = new WebSocket.Server({
@@ -10,12 +11,14 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
       if (origin !== baseURL) {
         return cb(false, 403, "Disallowed origin", {});
       }
-      fetchUser(req).then(user => {
-        req.user = user;
-        return cb(true);
-      }).catch(err => {
-        return cb(false, 403, "Authenticated user required", {});
-      });
+      fetchUser(req)
+        .then(user => {
+          req.user = user;
+          return cb(true);
+        })
+        .catch(err => {
+          return cb(false, 403, "Authenticated user required", {});
+        });
     }
   });
 
@@ -59,25 +62,45 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
     ws.user = req.user;
     ws.id = uuidV4();
     log.debug("WebSocket connection %s from %s", ws.id, (ws.user || {}).name);
-    ws.on("message", function incoming(message) {
-      log.debug("received: %s from %s", message, ws.user);
-      ws.send(`HEARD YOU SAY ${message}`);
+    ws.on("message", message => {
+      try {
+        const data = JSON.parse(message);
+        const name = data.event in socketEventHandlers ? data.event : "default";
+        socketEventHandlers[name]({ ws, data });
+      } catch (err) {
+        log.error("socket message error", err, data);
+      }
     });
-    ws.send("something");
   });
 
-  setInterval(() => {
-    wss.clients.forEach(client => {
-      if (client.readyState !== WebSocket.OPEN) {
-        return;
-      }
-      client.send(
-        JSON.stringify({
-          event: "STORE_ACTION",
-          type: "SET_SYSTEM_TIME",
-          payload: Date.now()
-        })
-      );
-    });
-  }, 1000);
+  const socketEventHandlers = {
+    storeDispatch: ({ ws, data }) => {
+      // Relay storeDispatch messages to the user's other clients
+      wss.clients.forEach(client => {
+        if (client.id !== ws.id && client.user._id === ws.user._id) {
+          client.send(
+            JSON.stringify({ event: "storeDispatch", action: data.action })
+          );
+        }
+      });
+    },
+    default: ({ ws, data }) => {
+      log.debug("Unimplemented message", data, ws.id, (ws.user || {}).name);
+    }
+  };
+
+  if (false)
+    setInterval(() => {
+      wss.clients.forEach(client => {
+        if (client.readyState !== WebSocket.OPEN) {
+          return;
+        }
+        client.send(
+          JSON.stringify({
+            event: "storeDispatch",
+            action: fromServer(actions.setSystemTime(Date.now()))
+          })
+        );
+      });
+    }, 1000);
 };
