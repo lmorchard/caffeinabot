@@ -13,7 +13,8 @@ import {
   ConnectedRouter as Router
 } from "connected-react-router";
 import ReconnectingWebSocket from "reconnecting-websocket";
-import { selectors, reducers, actions, fromServer } from "../../lib/store";
+import { selectors, rootReducer, actions, toPersist } from "../../lib/store";
+import { fromServer } from "../../lib/store/utils";
 import { makeLog } from "./lib/utils";
 
 import "./index.scss";
@@ -24,6 +25,11 @@ import Overlay from "./components/Overlay";
 const log = makeLog("index");
 
 let history, store, socket;
+
+const socketSend = (event, data = {}) => {
+  if (!socket) return;
+  socket.send(JSON.stringify({ ...data, event }));
+};
 
 function init() {
   log("init");
@@ -38,19 +44,6 @@ function init() {
   renderApp();
 }
 
-const updateWebSocketMiddleware = ({ getState }) => next => action => {
-  const nextAction = next(action);
-  const { type, payload, meta = {} } = nextAction;
-  const state = getState();
-  if (socket && selectors.socketConnected(state) && !meta.localOnly && !meta.fromServer) {
-    socket.send(JSON.stringify({
-      event: "storeDispatch",
-      action: { payload, meta, type }
-    }));
-  }
-  return nextAction;
-};
-
 function setupStore() {
   const composeEnhancers = composeWithDevTools({});
 
@@ -59,13 +52,13 @@ function setupStore() {
   history = createBrowserHistory();
 
   store = createStore(
-    connectRouter(history)(combineReducers({ ...reducers })),
+    connectRouter(history)(rootReducer),
     initialState,
     composeEnhancers(
       applyMiddleware(
         promiseMiddleware,
         routerMiddleware(history),
-        updateWebSocketMiddleware
+        webSocketMiddleware
       )
     )
   );
@@ -102,6 +95,7 @@ function setupWebSocket() {
 
   socket.addEventListener("open", event => {
     store.dispatch(setSocketConnected());
+    socketSend("storeRestore");
   });
 
   socket.addEventListener("close", event => {
@@ -123,9 +117,40 @@ const socketEventHandlers = {
   storeDispatch: ({ data: { action } }) => {
     store.dispatch(fromServer(action));
   },
+  storeRestore: ({ data }) => {
+    store.dispatch(actions.storeRestore(data.store));
+  },
   default: ({ data }) => {
     log("unexpected socket message", data);
   }
+};
+
+const PERSIST_DELAY = 500;
+let persistTimer, persistInProgress;
+
+const webSocketMiddleware = ({ getState }) => next => action => {
+  const nextAction = next(action);
+  const { type, payload, meta = {} } = nextAction;
+  const state = getState();
+
+  if (socket && selectors.socketConnected(state)) {
+    if (!meta.localOnly && !meta.fromServer) {
+      socketSend("storeDispatch", { action: { payload, meta, type } });
+    }
+
+    if (meta.persistCheckpoint) {
+      if (persistTimer) clearTimeout(persistTimer);
+      persistTimer = setTimeout(
+        () =>
+          socketSend("storePersist", {
+            store: toPersist(store.getState())
+          }),
+        PERSIST_DELAY
+      );
+    }
+  }
+
+  return nextAction;
 };
 
 function renderApp() {

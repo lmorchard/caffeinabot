@@ -74,18 +74,30 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
   });
 
   const socketEventHandlers = {
-    storeDispatch: ({ ws, data }) => {
+    default: ({ ws, data }) => {
+      log.debug("Unimplemented message", data, ws.id, (ws.user || {}).name);
+    },
+    storeDispatch: ({ ws, data: { action } }) => {
       // Relay storeDispatch messages to the user's other clients
       wss.clients.forEach(client => {
         if (client.id !== ws.id && client.user._id === ws.user._id) {
-          client.send(
-            JSON.stringify({ event: "storeDispatch", action: data.action })
-          );
+          client.send(JSON.stringify({ event: "storeDispatch", action }));
         }
       });
     },
-    default: ({ ws, data }) => {
-      log.debug("Unimplemented message", data, ws.id, (ws.user || {}).name);
+    storePersist: ({ ws, data: { store } }) => {
+      const _id = ws.user._id;
+      db.appStates
+        .update({ _id }, { _id, store }, { upsert: true })
+        .catch(err => log.error("Error saving app state", _id, err));
+    },
+    storeRestore: ({ ws }) => {
+      const _id = ws.user._id;
+      db.appStates
+        .findOne({ _id })
+        .then(({ store = {} }) =>
+          ws.send(JSON.stringify({ event: "storeRestore", store }))
+        );
     }
   };
 
