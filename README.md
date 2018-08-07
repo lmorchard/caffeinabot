@@ -6,6 +6,11 @@ a caffeinated bot that might someday assist me with streaming
 
 * Move TODOs into github issues
 
+* Plugin architecture
+  * Add components for dashboard, overlays
+  * Redux shared store actions & reducers
+  * Chatbot behaviors
+
 * Overlay designer with drag & drop React components
 
 * Overlay components

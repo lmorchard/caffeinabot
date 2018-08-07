@@ -62,7 +62,7 @@ function setupStore() {
       )
     )
   );
-
+  /*
   store.dispatch(
     registerUUID("overlayItems", {
       alpha: { x: 700, y: 0, width: 320, height: 200 },
@@ -70,6 +70,7 @@ function setupStore() {
       gamma: { x: 350, y: 210, width: 320, height: 200 }
     })
   );
+  */
 }
 
 function setupAuth() {

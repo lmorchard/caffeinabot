@@ -80,7 +80,11 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
     storeDispatch: ({ ws, data: { action } }) => {
       // Relay storeDispatch messages to the user's other clients
       wss.clients.forEach(client => {
-        if (client.id !== ws.id && client.user._id === ws.user._id) {
+        if (
+          client.readyState === WebSocket.OPEN &&
+          client.id !== ws.id &&
+          client.user._id === ws.user._id
+        ) {
           client.send(JSON.stringify({ event: "storeDispatch", action }));
         }
       });
@@ -92,27 +96,11 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
         .catch(err => log.error("Error saving app state", _id, err));
     },
     storeRestore: ({ ws }) => {
-      const _id = ws.user._id;
       db.appStates
-        .findOne({ _id })
+        .findOne({ _id: ws.user._id })
         .then(({ store = {} }) =>
           ws.send(JSON.stringify({ event: "storeRestore", store }))
         );
     }
   };
-
-  if (false)
-    setInterval(() => {
-      wss.clients.forEach(client => {
-        if (client.readyState !== WebSocket.OPEN) {
-          return;
-        }
-        client.send(
-          JSON.stringify({
-            event: "storeDispatch",
-            action: fromServer(actions.setSystemTime(Date.now()))
-          })
-        );
-      });
-    }, 1000);
 };

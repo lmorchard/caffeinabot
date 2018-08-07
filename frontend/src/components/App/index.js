@@ -78,7 +78,7 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
   }
 
   render() {
-    const { authUser, authLoading } = this.props;
+    const { overlayItemIds, getOverlayItem, authUser, authLoading } = this.props;
 
     return (
       <div>
@@ -103,11 +103,13 @@ class ResponsiveLocalStorageLayout extends React.PureComponent {
             },
             <React.Fragment>
               <p>This is some test content</p>
-              <ul>
-                <li>One</li>
-                <li>Two</li>
-                <li>Three</li>
-              </ul>
+              <pre>
+                {JSON.stringify(
+                  overlayItemIds.map(id => getOverlayItem(id)),
+                  null,
+                  " "
+                )}
+              </pre>
             </React.Fragment>
           )}
 
