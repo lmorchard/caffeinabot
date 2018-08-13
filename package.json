@@ -58,6 +58,7 @@
     "cross-env": "^5.2.0",
     "css-hot-loader": "^1.4.0",
     "css-loader": "^1.0.0",
+    "dotenv": "^6.0.0",
     "eslint": "^5.1.0",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-mozilla": "^0.14.0",

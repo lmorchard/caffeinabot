@@ -5,8 +5,9 @@ const responseHandler = require("./responseHandler");
 
 module.exports = context => {
   const { app } = context;
-  app.use(koaBodyParser());
-  app.use(requestId());
-  app.use(log(context));
-  app.use(responseHandler());
+  app
+    .use(koaBodyParser())
+    .use(requestId())
+    .use(log(context))
+    .use(responseHandler());
 };

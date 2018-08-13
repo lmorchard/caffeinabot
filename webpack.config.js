@@ -6,10 +6,6 @@ const ConfigWebpackPlugin = require("config-webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const setupContext = require("./lib/context");
-const setupApp = require("./backend/app");
-const setupChatbot = require("./chatbot");
-
 const host = config.get("host") || "127.0.0.1";
 const port = config.get("port") || "80";
 const nodeEnv = process.env.NODE_ENV || "production";
@@ -36,11 +32,7 @@ module.exports = {
     },
     content: contentPath,
     clipboard: false,
-    add: (app, middleware, options) => {
-      const context = setupContext(app, app.server);
-      setupApp(context);
-      setupChatbot(context);
-    }
+    add: (app, middleware, options) => require("./backend")(app, app.server)
   },
   plugins: [
     new webpack.DefinePlugin({

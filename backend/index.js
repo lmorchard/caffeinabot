@@ -32,7 +32,10 @@ module.exports = (app, server) => {
       timestampData: true
     });
 
-  return {
+  return [
+    require("./app"),
+    require("./chatbot")
+  ].reduce((context, fn) => fn(context) || context, {
     app,
     server,
     config,
@@ -43,5 +46,5 @@ module.exports = (app, server) => {
       users: db("users"),
       appStates: db("appStates")
     }
-  };
-};
+  });
+}
