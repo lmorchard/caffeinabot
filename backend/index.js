@@ -1,11 +1,10 @@
-const config = require("config");
 const bunyan = require("bunyan");
 const Datastore = require("nedb-promises");
 
-module.exports = (app, server) => {
-  const host = config.get("host");
-  const port = config.get("port");
-  const useHTTPS = config.get("useHTTPS");
+module.exports = ({ config, app, server }) => {
+  const host = config.HOST;
+  const port = config.PORT;
+  const useHTTPS = config.USE_HTTP;
 
   const baseURL =
     (useHTTPS ? "https" : "http") +
@@ -13,9 +12,19 @@ module.exports = (app, server) => {
     host +
     (port == "80" ? "" : `:${port}`);
 
-  const log = bunyan.createLogger({ ...config.get("log") });
+  const log = bunyan.createLogger({
+    name: "caffeinabot",
+    level: "debug",
+    streams: [
+      {
+        type: "rotating-file",
+        path: "./logs/debug.log",
+        level: "debug"
+      }
+    ]
+  });
 
-  if (config.get("verbose")) {
+  if (config.VERBOSE) {
     const { PrettyBunyan } = require("../lib/utils");
     const verboseStream = new PrettyBunyan();
     log.addStream({

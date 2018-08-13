@@ -1,20 +1,17 @@
+require("dotenv").config();
+
 const webpack = require("webpack");
 const path = require("path");
-const config = require("config");
 
-const ConfigWebpackPlugin = require("config-webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const host = config.get("host") || "127.0.0.1";
-const port = config.get("port") || "80";
-const nodeEnv = process.env.NODE_ENV || "production";
-const devMode = nodeEnv === "development";
+const config = require("./lib/config")();
 
 const contentPath = path.resolve(__dirname, "frontend/build");
 
 module.exports = {
-  mode: devMode ? "development" : "production",
+  mode: config.NODE_ENV === "development" ? "development" : "production",
   entry: {
     index: "./frontend/src/index.js"
   },
@@ -24,21 +21,21 @@ module.exports = {
   },
   devtool: "cheap-eval-source-map",
   serve: {
-    host,
-    port,
+    host: config.HOST,
+    port: config.PORT,
     hotClient: {
-      host,
-      port: Number.parseInt(port, 10) + 10
+      host: config.HOST,
+      port: Number.parseInt(config.PORT, 10) + 10
     },
     content: contentPath,
     clipboard: false,
-    add: (app, middleware, options) => require("./backend")(app, app.server)
+    add: (app, middleware, options) =>
+      require("./backend")({ config, app, server: app.server })
   },
   plugins: [
     new webpack.DefinePlugin({
-      "process.env.NODE_ENV": `"${nodeEnv}"`
+      "process.env.NODE_ENV": `"${config.NODE_ENV}"`
     }),
-    new ConfigWebpackPlugin(),
     new HtmlWebpackPlugin(),
     new MiniCssExtractPlugin()
   ],

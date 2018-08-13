@@ -1,14 +1,13 @@
 const Twitch = require("twitch-js");
 
 module.exports = ({ log, db, config }) => {
-  const twitchConfig = config.get("twitch");
   const options = {
     debug: true,
-    clientId: twitchConfig.clientId,
-    channels: ["#lmorchard"],
+    clientId: config.TWITCH_CLIENT_ID,
+    channels: config.TWITCH_CHAT_CHANNELS.split(",").map(c => `#${c}`),
     identity: {
-      username: twitchConfig.botUsername,
-      password: twitchConfig.botPassword
+      username: config.TWITCH_BOT_USERNAME,
+      password: config.TWITCH_BOT_PASSWORD
     }
   };
   const client = new Twitch.client(options);

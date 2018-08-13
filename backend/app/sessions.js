@@ -1,12 +1,12 @@
 const session = require("koa-session");
 
 module.exports = ({ db, app, config }) => {
-  app.keys = config.get("keys");
+  app.keys = config.KEYS.split(",");
   app.use(
     session(
       {
-        maxAge: config.get("session.maxAge"),
-        renew: config.get("session.renew"),
+        maxAge: 14 * 86400000, // TODO: config
+        renew: true, // TODO: config
         store: {
           async set(_id, value, maxAge, { rolling, changed }) {
             await db.sessions.update({ _id }, { _id, value }, { upsert: true });

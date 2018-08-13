@@ -12,12 +12,11 @@ module.exports = ({ log, db, config, app, server, baseURL }) => {
       .catch(err => done(err, null));
   });
 
-  const twitchConfig = config.get("twitch");
   passport.use(
     new twitchStrategy(
       {
-        clientID: twitchConfig.clientId,
-        clientSecret: twitchConfig.clientSecret,
+        clientID: config.TWITCH_CLIENT_ID,
+        clientSecret: config.TWITCH_CLIENT_SECRET,
         callbackURL: `${baseURL}/auth/twitch/callback`,
         scope: "user_read"
       },

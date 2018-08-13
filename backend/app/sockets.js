@@ -33,7 +33,7 @@ module.exports = ({ log, db, app, config, server, baseURL }) => {
 
   // TODO: Stop reimplementing sessions and passport user lookup here.
   const fetchUser = async req => {
-    const cookies = new Cookies(req, {}, { keys: config.get("keys") });
+    const cookies = new Cookies(req, {}, { keys: app.keys });
 
     const sessionId = cookies.get("koa:sess", { signed: true });
     if (!sessionId) {

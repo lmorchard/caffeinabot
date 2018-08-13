@@ -1,3 +1,7 @@
+require('dotenv').config();
+
+const config = require("./lib/config")();
+
 const path = require("path");
 const http = require("http");
 const Koa = require("koa");
@@ -9,11 +13,9 @@ const server = http.createServer(app.callback());
 const webPath = path.join(__dirname, "./frontend/build/");
 app.use(KoaStatic(webPath));
 
-const { log, config } = require("./backend")(app, server);
+const { log } = require("./backend")({ config, app, server });
 
-const host = config.get("host");
-const port = config.get("port");
-const httpProto = config.get("useHTTPS") ? "HTTPS" : "HTTP";
+const httpProto = config.USE_HTTPS ? "HTTPS" : "HTTP";
 
-log.info(`Starting ${httpProto} server on ${host}:${port}`);
-server.listen(port, host);
+log.info(`Starting ${httpProto} server on ${config.HOST}:${config.PORT}`);
+server.listen(config.PORT, config.HOST);
